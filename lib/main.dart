@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -67,7 +69,11 @@ class _HomeState extends State<Home> {
         getLocation();
       }
     } else {
-      print("GPS Service is not enabled, turn on GPS location");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location services are disabled')),
+      );
+
+
     }
 
     setState(() {
@@ -76,15 +82,14 @@ class _HomeState extends State<Home> {
   }
 
   getLocation() async {
-    position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    print(position.longitude); // Output: 80.24599079
-    print(position.latitude); // Output: 29.6593457
-
+    position = await Geolocator.getCurrentPosition( locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.high,
+    ));
     long = position.longitude.toString();
     lat = position.latitude.toString();
 
     setState(() {
-      //refresh UI
+      // * refresh UI
     });
 
     LocationSettings locationSettings = const LocationSettings(
@@ -94,14 +99,12 @@ class _HomeState extends State<Home> {
 
     positionStream = Geolocator.getPositionStream(
         locationSettings: locationSettings).listen((Position position) {
-      print(position.longitude); // Output: 80.24599079
-      print(position.latitude); // Output: 29.6593457
 
       long = position.longitude.toString();
       lat = position.latitude.toString();
 
       setState(() {
-        //refresh UI on update
+        // * refresh UI on update
       });
     });
   }
@@ -142,7 +145,18 @@ class _HomeState extends State<Home> {
               ),
             ),
             const SizedBox(height: 30),
-
+          if(!serviceStatus)
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
+              backgroundColor: Colors.green,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text('Enable Location Services', style: TextStyle(color: Colors.white),),
+            onPressed: () => Geolocator.openLocationSettings(),
+          ),
             // Display Loading Indicator
             if (isLoading)
               const CircularProgressIndicator(),
