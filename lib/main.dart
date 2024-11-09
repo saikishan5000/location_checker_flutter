@@ -22,8 +22,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool servicestatus = false;
-  bool haspermission = false;
+  bool serviceStatus = false;
+  bool hasPermission = false;
   late LocationPermission permission;
   late Position position;
   String long = "", lat = "";
@@ -37,24 +37,30 @@ class _HomeState extends State<Home> {
   }
 
   checkGps() async {
-    servicestatus = await Geolocator.isLocationServiceEnabled();
-    if (servicestatus) {
+    serviceStatus = await Geolocator.isLocationServiceEnabled();
+    if (serviceStatus) {
       permission = await Geolocator.checkPermission();
 
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          print('Location permissions are denied');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')),
+          );
         } else if (permission == LocationPermission.deniedForever) {
-          print("Location permissions are permanently denied");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Location permissions are permanently denied'),
+            )
+          );
         } else {
-          haspermission = true;
+          hasPermission = true;
         }
       } else {
-        haspermission = true;
+        hasPermission = true;
       }
 
-      if (haspermission) {
+      if (hasPermission) {
         setState(() {
           isLoading = false; // Stop the loading indicator
         });
@@ -81,7 +87,7 @@ class _HomeState extends State<Home> {
       //refresh UI
     });
 
-    LocationSettings locationSettings = LocationSettings(
+    LocationSettings locationSettings = const LocationSettings(
       accuracy: LocationAccuracy.high, // accuracy of the location data
       distanceFilter: 100, // minimum distance (measured in meters)
     );
@@ -103,13 +109,9 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Get GPS Location"),
-        backgroundColor: Colors.redAccent,
-      ),
       body: Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -118,44 +120,44 @@ class _HomeState extends State<Home> {
             Icon(
               Icons.location_on,
               size: 50,
-              color: servicestatus ? Colors.green : Colors.red,
+              color: serviceStatus ? Colors.green : Colors.red,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
-              servicestatus ? "GPS is Enabled" : "GPS is Disabled",
+              serviceStatus ? "GPS is Enabled" : "GPS is Disabled",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: servicestatus ? Colors.green : Colors.red,
+                color: serviceStatus ? Colors.green : Colors.red,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
-              haspermission
+              hasPermission
                   ? "Permission Granted"
                   : "GPS Permission Denied",
               style: TextStyle(
                 fontSize: 20,
-                color: haspermission ? Colors.green : Colors.red,
+                color: hasPermission ? Colors.green : Colors.red,
               ),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
 
             // Display Loading Indicator
             if (isLoading)
-              CircularProgressIndicator(),
+              const CircularProgressIndicator(),
             if (!isLoading)
               Column(
                 children: [
                   // Display coordinates once available
                   Text(
                     "Longitude: $long",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     "Latitude: $lat",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
